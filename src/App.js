@@ -10,17 +10,27 @@ function App() {
   const [axiosClick, setAxiosClick] = useState("");
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
     setFetchRes("fetch request created");
-    hitApi().then((res) => {
+    hitApi(signal).then((res) => {
       setFetchRes(res);
     });
+    return () => {
+      controller.abort();
+    };
   }, [fetchClick]);
 
   useEffect(() => {
+    const cancelToken = axios.CancelToken;
+    const source = cancelToken.source();
     setAxiosRes("axios request created");
-    getReq().then((res) => {
+    getReq(source).then((res) => {
       setAxiosRes(res);
     });
+    return () => {
+      source.cancel("axios request cancelled");
+    };
   }, [axiosClick]);
 
   return (
